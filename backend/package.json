@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "test": "jest --watchAll"
   },
   "dependencies": {
     "apisauce": "^2.1.6",
@@ -11,5 +12,9 @@
     "debug": "~2.6.9",
     "express": "~4.16.1",
     "morgan": "~1.9.1"
+  },
+  "devDependencies": {
+    "jest": "^29.0.1",
+    "supertest": "^6.2.4"
   }
 }
