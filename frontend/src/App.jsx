@@ -11,93 +11,145 @@ import {
   Container,
   CssBaseline,
   Button,
+  Pagination,
+  TextField,
 } from "@mui/material";
 
-import CameraOutlinedIcon from "@mui/icons-material/CameraOutlined";
+import CollectionsIcon from "@mui/icons-material/Collections";
 
 import useStyles from "./styles";
 
 import publicFeedApi from "./api/publicFeed";
 
-const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+import usePagination from "./pagination";
+
+import Lightbox from "react-image-lightbox";
+import "react-image-lightbox/style.css";
 
 const App = () => {
   const classes = useStyles();
   const [photoList, setPhotoList] = useState([]);
+  const [page, setPage] = useState(1);
+  const [tags, setTags] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const [imgIndex, setImgIndex] = useState(0);
+  const [images, setImages] = useState("");
+  const PER_PAGE = 6;
 
   useEffect(() => {
     const getAllPublicFeed = async () => {
       const response = await publicFeedApi.getAllPublicFeed("all");
-      console.log(response);
+      setPhotoList(response.data);
     };
 
     getAllPublicFeed();
   }, []);
+
+  const getAllPublicFeedWithTags = async () => {
+    const response = await publicFeedApi.getAllPublicFeedWithTags(tags, "all");
+    setPhotoList(response.data);
+  };
+
+  let count = Math.ceil(photoList.length / PER_PAGE);
+  let _DATA = usePagination(photoList, PER_PAGE);
+
+  const handleChange = (e, p) => {
+    setPage(p);
+    _DATA.jump(p);
+  };
+
+  const handleTagsChange = (e) => {
+    setTags(e.target.value);
+  };
 
   return (
     <>
       <CssBaseline />
       <AppBar position="relative">
         <Toolbar>
-          <CameraOutlinedIcon className={classes.icon} />
-          <Typography variant="h6">Photo Album</Typography>
+          <CollectionsIcon className={classes.icon} />
+          <Typography variant="h6">
+            Simple Photo Gallery FrontEnd and BackEnd with Flicker API
+          </Typography>
         </Toolbar>
       </AppBar>
       <main>
         <div className={classes.container}>
-          <Container maxWidth="sm">
+          <Container maxWidth="md">
             <Typography
               variant="h2"
               align="center"
               color="textPrimary"
               gutterBottom
             >
-              Photo Album
-            </Typography>
-            <Typography
-              variant="h5"
-              align="center"
-              color="textSecondary"
-              paragraph
-            >
-              hello everyone this is a photo album and i am trying to make
-              sentence as long as possible so we can see how does it look like
-              on the screen
+              Flicker Public Feed Gallery
             </Typography>
             <div className={classes.button}>
-              <Grid spacing={2} container justifyContent="center">
-                <Grid item>
-                  <Button variant="contained">See my photos</Button>
-                </Grid>
-                <Grid item>
-                  <Button variant="outlined">Secondary Action</Button>
-                </Grid>
-              </Grid>
+              <TextField
+                style={{ marginRight: "10px", width: "100%" }}
+                value={tags}
+                onChange={handleTagsChange}
+              />
+              <Button
+                style={{ width: "30%" }}
+                variant="contained"
+                onClick={() => {
+                  getAllPublicFeedWithTags();
+                }}
+              >
+                Search Tags
+              </Button>
             </div>
           </Container>
         </div>
-        <Container classname={classes.cardGrid} maxWidth="md">
+        <Container className={classes.cardGrid} maxWidth="md">
           <Grid container spacing={4}>
-            {cards.map(() => (
+            {isOpen && (
+              <Lightbox
+                mainSrc={images}
+                onCloseRequest={() => setIsOpen(false)}
+              />
+            )}
+            {_DATA.currentData().map((pl) => (
               <Grid item xs={12} sm={6} md={4}>
                 <Card className={classes.card}>
                   <CardMedia
                     className={classes.cardMedia}
-                    image="https://source.unsplash.com/random"
+                    image={pl.photo}
                     title="Image Title"
                   />
                   <CardContent className={classes.cardContent}>
-                    <Typography gutterBotom variant="h5">
-                      Heading
+                    <Typography
+                      gutterBottom
+                      variant="h5"
+                      style={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        lineClamp: 2,
+                      }}
+                    >
+                      {pl.title}
                     </Typography>
-                    <Typography>
-                      This is a media card. you can use this section to describe
-                      the content.
-                    </Typography>
+                    <Typography>Author : {pl.author}</Typography>
                   </CardContent>
                   <CardActions>
-                    <Button size="small">View</Button>
-                    <Button size="small">Edit</Button>
+                    <Button
+                      size="small"
+                      variant="contained"
+                      onClick={() => {
+                        setIsOpen(true);
+                        setImages(pl.photo);
+                      }}
+                    >
+                      View
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => window.open(pl.sourceLink, "_blank")}
+                    >
+                      Source Link
+                    </Button>
                   </CardActions>
                 </Card>
               </Grid>
@@ -106,11 +158,17 @@ const App = () => {
         </Container>
       </main>
       <footer className={classes.footer}>
-        <Typography variant="h6" align="center" gutterBottom>
-          Footer
-        </Typography>
+        <div className={classes.page}>
+          <Pagination
+            count={count}
+            size="large"
+            page={page}
+            onChange={handleChange}
+            color="primary"
+          />
+        </div>
         <Typography variant="subtitle1" align="center" color="textSecondary">
-          Something here to give the footer a purpose
+          Made by Wylouuu
         </Typography>
       </footer>
     </>

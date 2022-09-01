@@ -1,6 +1,6 @@
 import client from "./client";
 
-const endpoint = "/publicFeed/all";
+const endpoint = "/publicFeed";
 
 const getAllPublicFeed = async (perPages) => {
   const response = await client.get(endpoint + "/" + perPages);
