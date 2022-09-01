@@ -1,4 +1,11 @@
+//import React
 import React, { useState, useEffect } from "react";
+
+//import Material UI
+import PhotoLibraryIcon from "@material-ui/icons/PhotoLibrary";
+
+import Pagination from "@material-ui/lab/Pagination";
+
 import {
   Typography,
   AppBar,
@@ -11,31 +18,37 @@ import {
   Container,
   CssBaseline,
   Button,
-  Pagination,
   TextField,
-} from "@mui/material";
+} from "@material-ui/core";
 
-import CollectionsIcon from "@mui/icons-material/Collections";
-
+//import Custom Styles
 import useStyles from "./styles";
 
+//import API
 import publicFeedApi from "./api/publicFeed";
 
+//import Pagination Logic
 import usePagination from "./pagination";
 
+//import Gallery Viewer
 import Lightbox from "react-image-lightbox";
 import "react-image-lightbox/style.css";
 
 const App = () => {
+  //define
   const classes = useStyles();
-  const [photoList, setPhotoList] = useState([]);
-  const [page, setPage] = useState(1);
-  const [tags, setTags] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
-  const [imgIndex, setImgIndex] = useState(0);
-  const [images, setImages] = useState("");
-  const PER_PAGE = 6;
 
+  const [photoList, setPhotoList] = useState([]),
+    [page, setPage] = useState(1),
+    [tags, setTags] = useState(""),
+    [isOpen, setIsOpen] = useState(false),
+    [images, setImages] = useState("");
+
+  const PER_PAGE = 6;
+  let count = Math.ceil(photoList.length / PER_PAGE);
+  let _DATA = usePagination(photoList, PER_PAGE);
+
+  //hooks
   useEffect(() => {
     const getAllPublicFeed = async () => {
       const response = await publicFeedApi.getAllPublicFeed("all");
@@ -45,14 +58,13 @@ const App = () => {
     getAllPublicFeed();
   }, []);
 
+  //functions
   const getAllPublicFeedWithTags = async () => {
     const response = await publicFeedApi.getAllPublicFeedWithTags(tags, "all");
     setPhotoList(response.data);
   };
 
-  let count = Math.ceil(photoList.length / PER_PAGE);
-  let _DATA = usePagination(photoList, PER_PAGE);
-
+  //handles
   const handleChange = (e, p) => {
     setPage(p);
     _DATA.jump(p);
@@ -67,9 +79,9 @@ const App = () => {
       <CssBaseline />
       <AppBar position="relative">
         <Toolbar>
-          <CollectionsIcon className={classes.icon} />
+          <PhotoLibraryIcon className={classes.icon} />
           <Typography variant="h6">
-            Simple Photo Gallery FrontEnd and BackEnd with Flicker API
+            Simple Photo Gallery With Flicker API
           </Typography>
         </Toolbar>
       </AppBar>
@@ -86,12 +98,15 @@ const App = () => {
             </Typography>
             <div className={classes.button}>
               <TextField
-                style={{ marginRight: "10px", width: "100%" }}
+                variant="outlined"
+                data-testid="textField-1"
+                className={classes.searchField}
                 value={tags}
                 onChange={handleTagsChange}
               />
               <Button
-                style={{ width: "30%" }}
+                data-testid="button-1"
+                className={classes.searchButton}
                 variant="contained"
                 onClick={() => {
                   getAllPublicFeedWithTags();
@@ -103,7 +118,7 @@ const App = () => {
           </Container>
         </div>
         <Container className={classes.cardGrid} maxWidth="md">
-          <Grid container spacing={4}>
+          <Grid data-testid="grid" container spacing={4}>
             {isOpen && (
               <Lightbox
                 mainSrc={images}
@@ -141,7 +156,7 @@ const App = () => {
                         setImages(pl.photo);
                       }}
                     >
-                      View
+                      View Photo
                     </Button>
                     <Button
                       size="small"
