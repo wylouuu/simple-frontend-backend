@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Typography,
   AppBar,
@@ -17,10 +17,23 @@ import CameraOutlinedIcon from "@mui/icons-material/CameraOutlined";
 
 import useStyles from "./styles";
 
+import publicFeedApi from "./api/publicFeed";
+
 const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 const App = () => {
   const classes = useStyles();
+  const [photoList, setPhotoList] = useState([]);
+
+  useEffect(() => {
+    const getAllPublicFeed = async () => {
+      const response = await publicFeedApi.getAllPublicFeed("all");
+      console.log(response);
+    };
+
+    getAllPublicFeed();
+  }, []);
+
   return (
     <>
       <CssBaseline />
