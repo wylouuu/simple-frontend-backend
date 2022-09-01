@@ -25,7 +25,7 @@ const processData = (data, itemPage) => {
 
     //organize data
     jsonData['title'] = x.title;
-    jsonData['source-link'] = x.link;
+    jsonData['sourceLink'] = x.link;
 
     //convert medium size image to original size by delete '_m'
     let photo = x.media.m;
